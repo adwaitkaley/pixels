@@ -45,7 +45,7 @@ var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
       // Step 3a. Link user accounts.
       if (req.headers.authorization) {
     	 
-    	  var query="select U_ID from db_pixel.USR_DTL_TBL where U_ID='"+profile.sub+"';";
+    	  var query="select U_ID from USR_DTL_TBL where U_ID='"+profile.sub+"';";
     	 
     	  mysql.dbcall(function(err,results){
     		  if(err){
@@ -64,7 +64,7 @@ var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
     	  var token = req.headers.authorization.split(' ')[1];
     	  var payload = jwt.decode(token, config.TOKEN_SECRET);
           
-    	  var query="select U_ID from db_pixel.USR_DTL_TBL where U_ID='"+payload.sub+"';";
+    	  var query="select U_ID from USR_DTL_TBL where U_ID='"+payload.sub+"';";
  	 
     	  mysql.dbcall(function(err,results){
     		  if(err){
@@ -82,7 +82,7 @@ var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
     	  console.log(profile.sub);
       
     	  var sqlQuery="insert into db_pixel.USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
-      		"VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.picture.replace('sz=50', 'sz=200')+
+      		" VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.picture.replace('sz=50', 'sz=200')+
       		"','G',SYSDATE()";  
 
     	  mysql.dbcall(function(err,results){
@@ -101,17 +101,20 @@ var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
       	else {
       		// Step 3b. Create a new user account or return an existing one.
       		
-      		var query="select U_ID from db_pixel.USR_DTL_TBL where U_ID='"+profile.sub+"'";
-       	 
-      		mysql.dbcall(function(err,results){
+      		var query="select U_ID from USR_DTL_TBL where U_ID='"+profile.sub+"';";
+       	     //var query="select * from USR_DTL_TBL;";
+       	     
+      		 mysql.dbcall(function(err,results){
       			if(err){
+      				console.log("in error..!!!");
       				throw err;
       			}
       			else 
       			{
       				if(results){
           				console.log("user looking up 3");
-          				return res.send({ token: jwtServer.createJWT(results) });
+          				console.log(results);
+          				res.send({ token: jwtServer.createJWT(results) });
       				}
       				
       			  //res.send({"save":"Success"});
@@ -119,12 +122,13 @@ var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
       		},query);
       		
       		
-      			var sqlQuery="insert into db_pixel.USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
-          		"VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.picture.replace('sz=50', 'sz=200')+
-          		"','G',SYSDATE()";  
+      		var sqlQuery="insert into USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
+          	" VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.picture+
+          	"','G',SYSDATE())";  
 
-        	  mysql.dbcall(function(err,results){
+        	mysql.dbcall(function(err,results){
         		  if(err){
+        			  console.log("in error of insert");
         			  throw err;
         		  }
         		  else 

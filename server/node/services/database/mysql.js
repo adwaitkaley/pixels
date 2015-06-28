@@ -40,13 +40,12 @@ exports.dbcall = function(callback, sqlQuery) {
 
 			if (err) {
 				console.log("ERROR: " + err.message);
-		} else { 
-			console.log("\nSQL Query::" + sqlQuery);
-			callback(err, rows);
-
-		}
-	}); 
+				console.log("for error query: "+sqlQuery);
+			} else { 
+				console.log("\nSQL Query::" + sqlQuery);
+				callback(err, rows);
+			}
+		}); 
 		console.log("\nConnection closed in pool..");
-
-	//}
+		//}
 }
