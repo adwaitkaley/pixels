@@ -1,4 +1,4 @@
-var ejs = require('ejs');
+//var ejs = require('ejs');
 var mysql = require('mysql');
 
 function getConnection(){

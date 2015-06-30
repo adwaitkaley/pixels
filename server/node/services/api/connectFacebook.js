@@ -15,6 +15,8 @@ var request = require('request');
 var jwtServer=require('../../server')
 var config = require('../../config');
 
+var mysql = require('../database/mysql');
+
 var User = require('../database/mongo');
 var userSchema = require('../database/mongo');
 
@@ -41,41 +43,99 @@ function connectFB(req,res){
 	        return res.status(500).send({ message: profile.error.message });
 	      }
 	      if (req.headers.authorization) {
-	    	  User.User.findOne({ facebook: profile.id }, function(err, existingUser) {
-	          if (existingUser) {
-	            return res.status(409).send({ message: 'There is already a Facebook account that belongs to you' });
-	          }
+	    	  
+	    	  var query="select U_ID from USR_DTL_TBL where U_ID='"+profile.id+"';";
+	     	 
+	    	  mysql.dbcall(function(err,results){
+	    		  if(err){
+	    			  throw err;
+	    		  }
+	    		  else 
+	    		  {
+	    			  if(results) {
+	        			  console.log("user looking up 1");
+	        			  return res.status(409).send({ message: 'There is already a Facebook account that belongs to you' });
+	    			  }
+	    			  //res.send({"save":"Success"});
+	    		  }  
+	    	  },query);
+	    	 
 	          var token = req.headers.authorization.split(' ')[1];
 	          var payload = jwt.decode(token, config.TOKEN_SECRET);
-	          User.User.findById(payload.sub, function(err, user) {
-	            if (!user) {
-	              return res.status(400).send({ message: 'User not found' });
-	            }
-	            user.facebook = profile.id;
-	            user.picture = user.picture || 'https://graph.facebook.com/v2.3/' + profile.id + '/picture?type=large';
-	            user.displayName = user.displayName || profile.name;
-	            user.save(function() {
-	              var token = jwtServer.createJWT(user);
-	              res.send({ token: token });
-	            });
-	          });
-	        });
+	          
+	          var query="select U_ID from USR_DTL_TBL where U_ID='"+payload.id+"';";
+	      	 
+	    	  mysql.dbcall(function(err,results){
+	    		  if(err){
+	    			  throw err;
+	    		  }
+	    		  else 
+	    		  {
+	    			  if(!results) {
+	    				  console.log("user looking up 2");
+	    				  return res.status(400).send({ message: 'User not found' });    		  
+	    			  }
+	    		  }  
+	    	  },query);
+	      
+	    	  console.log(profile.id);
+	    	    
+	    	  var sqlQuery="insert into db_pixel.USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
+	      		" VALUES ('"+profile.id+"','"+profile.name+"','https://graph.facebook.com/v2.3/"+profile.id+'/picture?type=large'+
+	      		"','F',SYSDATE())";  
+
+	    	  mysql.dbcall(function(err,results){
+	    		  if(err){
+	    			  throw err;
+	    		  }
+	    		  else 
+	    		  {
+	    			  console.log("user inserted");
+	    			  var token = jwtServer.createJWT(results);
+	    			  res.send({ token: token });
+	    		  }  
+	    	  },sqlQuery);
 	      } else {
 	        // Step 3b. Create a new user account or return an existing one.
-	    	  User.User.findOne({ facebook: profile.id }, function(err, existingUser) {
-	          if (existingUser) {
-	            var token = jwtServer.createJWT(existingUser);
-	            return res.send({ token: token });
-	          }
-	          var user = new User.User();
-	          user.facebook = profile.id;
-	          user.picture = 'https://graph.facebook.com/' + profile.id + '/picture?type=large';
-	          user.displayName = profile.name;
-	          user.save(function() {
-	            var token = jwtServer.createJWT(user);
-	            res.send({ token: token });
-	          });
-	        });
+	    	  var query="select U_ID from USR_DTL_TBL where U_ID='"+profile.id+"';";
+	       	     //var query="select * from USR_DTL_TBL;";
+	       	     console.log("in else...!!!");
+	       	     
+	      		 mysql.dbcall(function(err,results){
+	      			if(err){
+	      				console.log("in error..!!!");
+	      				throw err;
+	      			}
+	      			else 
+	      			{
+	      				if((results.length == 0)){
+	      					
+	      					var sqlQuery="insert into db_pixel.USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
+	      		      		" VALUES ('"+profile.id+"','"+profile.name+"','https://graph.facebook.com/v2.3/"+profile.id+'/picture?type=large'+
+	      		      		"','F',SYSDATE())";  
+
+	      		        	mysql.dbcall(function(err,results){
+	      		        		if(err){
+	      		        			console.log("in error of insert");
+	      		        			throw err;
+	      		        		}
+	      		        		else 
+	      		        		{
+	      		        			console.log("user inserted 2");
+	      		        			var token = jwtServer.createJWT(results);
+	      		        			res.send({ token: token });
+	      		        		}  
+	      		        	},sqlQuery);
+	      		        }
+	      				else{
+	          				console.log("user looking up 3");
+	          				console.log(results);
+	          				res.send({ token: jwtServer.createJWT(results) });
+	      				}
+	      				
+	      			  //res.send({"save":"Success"});
+	      			}  
+	      		},query);
 	      }
 	    });
 	  });

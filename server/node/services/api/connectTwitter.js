@@ -15,6 +15,8 @@ var request = require('request');
 var jwtServer=require('../../server')
 var config = require('../../config');
 
+var mysql = require('../database/mysql');
+
 var User = require('../database/mongo');
 var userSchema = require('../database/mongo');
 
@@ -69,48 +71,102 @@ var requestTokenUrl = 'https://api.twitter.com/oauth/request_token';
 
         // Step 5a. Link user accounts.
         if (req.headers.authorization) {
-        	User.User.findOne({ twitter: profile.id }, function(err, existingUser) {
-            if (existingUser) {
-              return res.status(409).send({ message: 'There is already a Twitter account that belongs to you' });
-            }
-
+        	
+        	var query="select U_ID from USR_DTL_TBL where U_ID='"+profile.sub+"';";
+       	 
+      	  	mysql.dbcall(function(err,results){
+      	  		if(err){
+      			  throw err;
+      	  		}
+      	  		else 
+      	  		{
+      			  if(results) {
+          			  console.log("user looking up 1");
+          			  return res.status(409).send({ message: 'There is already a Twitter account that belongs to you' });
+      			  }
+      			  //res.send({"save":"Success"});
+      	  		}  
+      	  	},query);
+      	  
             var token = req.headers.authorization.split(' ')[1];
             var payload = jwt.decode(token, config.TOKEN_SECRET);
 
-            User.User.findById(payload.sub, function(err, user) {
-              if (!user) {
-                return res.status(400).send({ message: 'User not found' });
-              }
+            var query="select U_ID from USR_DTL_TBL where U_ID='"+payload.sub+"';";
+	      	 
+	    	mysql.dbcall(function(err,results){
+	    		if(err){
+	    			  throw err;
+	    		}
+	    		else 
+	    		{
+	    		  if(!results) {
+	    			  console.log("user looking up 2");
+	    			  return res.status(400).send({ message: 'User not found' });    		  
+	    		  }
+	    		}  
+	    	  },query);
+	      
+	    	  console.log(profile.sub);
 
-              user.twitter = profile.id;
-              user.displayName = user.displayName || profile.name;
-              user.picture = user.picture || profile.profile_image_url.replace('_normal', '');
-              user.save(function(err) {
-                res.send({ token: jwtServer.createJWT(user) });
-              });
-            });
-          });
+	    	  var sqlQuery="insert into db_pixel.USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
+	      		" VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.profile_image_url.replace('_normal', '')+
+	      		"','T',SYSDATE())"; 
+	    	  
+	    	  mysql.dbcall(function(err,results){
+	    		  if(err){
+	    			  throw err;
+	    		  }
+	    		  else 
+	    		  {
+	    			  console.log("user inserted");
+	    			  var token = jwtServer.createJWT(results);
+	    			  res.send({ token: token });
+	    		  }  
+	    	  },sqlQuery);
         } else {
           // Step 5b. Create a new user account or return an existing one.
-        	User.User.findOne({ twitter: profile.id }, function(err, existingUser) {
-            if (existingUser) {
-              return res.send({ token: jwtServer.createJWT(existingUser) });
-            }
+        	var query="select U_ID from USR_DTL_TBL where U_ID='"+profile.sub+"';";
+      	     //var query="select * from USR_DTL_TBL;";
+      	     
+     		 mysql.dbcall(function(err,results){
+     			if(err){
+     				console.log("in error..!!!");
+     				throw err;
+     			}
+     			else 
+     			{
+     				if((results.length == 0)){
+     					
+     					var sqlQuery="insert into db_pixel.USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
+     		      		" VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.profile_image_url.replace('_normal', '')+
+     		      		"','T',SYSDATE())"; 
 
-            var user = new User.User();
-            user.twitter = profile.id;
-            user.displayName = profile.name;
-            user.picture = profile.profile_image_url.replace('_normal', '');
-            user.save(function() {
-              res.send({ token: jwtServer.createJWT(user) });
-            });
-          });
+     		        	mysql.dbcall(function(err,results){
+     		        		  if(err){
+     		        			  console.log("in error of insert");
+     		        			  throw err;
+     		        		  }
+     		        		  else 
+     		        		  {
+     		        			  console.log("user inserted 2");
+     		        			  var token = jwtServer.createJWT(results);
+     		        			  res.send({ token: token });
+     		        		  }  
+     		        	  },sqlQuery);
+     		        	}
+     				else{
+         				console.log("user looking up 3");
+         				console.log(results);
+         				res.send({ token: jwtServer.createJWT(results) });
+     				}
+     			  //res.send({"save":"Success"});
+     			}  
+     		},query);
         }
       });
     });
   }
 };
-
 exports.connectTwitter=connectTwitter;
 
 

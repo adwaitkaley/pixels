@@ -111,7 +111,27 @@ var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
       			}
       			else 
       			{
-      				if(results){
+      				console.log(results.length);
+      				if((results.length == 0)){
+      					
+      					var sqlQuery="insert into USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
+      		          	" VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.picture+
+      		          	"','G',SYSDATE())";  
+
+      		        	mysql.dbcall(function(err,results){
+      		        		  if(err){
+      		        			  console.log("in error of insert");
+      		        			  throw err;
+      		        		  }
+      		        		  else 
+      		        		  {
+      		        			  console.log("user inserted 2");
+      		        			  var token = jwtServer.createJWT(results);
+      		        			  res.send({ token: token });
+      		        		  }  
+      		        	  },sqlQuery);
+      		        	}
+      				else{
           				console.log("user looking up 3");
           				console.log(results);
           				res.send({ token: jwtServer.createJWT(results) });
@@ -121,23 +141,6 @@ var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
       			}  
       		},query);
       		
-      		
-      		var sqlQuery="insert into USR_DTL_TBL (U_ID,UNAME,PICTURE,SRC,CREATION_DATE)" +
-          	" VALUES ('"+profile.sub+"','"+profile.name+"','"+profile.picture+
-          	"','G',SYSDATE())";  
-
-        	mysql.dbcall(function(err,results){
-        		  if(err){
-        			  console.log("in error of insert");
-        			  throw err;
-        		  }
-        		  else 
-        		  {
-        			  console.log("user inserted 2");
-        			  var token = jwtServer.createJWT(results);
-        			  res.send({ token: token });
-        		  }  
-        	  },sqlQuery);
       	}
     });
   });
