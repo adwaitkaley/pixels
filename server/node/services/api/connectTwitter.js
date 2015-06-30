@@ -168,5 +168,3 @@ var requestTokenUrl = 'https://api.twitter.com/oauth/request_token';
   }
 };
 exports.connectTwitter=connectTwitter;
-
-
