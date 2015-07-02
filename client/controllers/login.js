@@ -20,6 +20,7 @@ angular.module('MyApp')
         });
     };
     $scope.authenticate = function(provider) {
+    	alert(1);
       $auth.authenticate(provider)
         .then(function() {
           $alert({
