@@ -4,7 +4,6 @@
     <div class="panel-heading">Home Page</div>
     <div class="panel-body">
       <div class="row">
-        
         <div ng-if="isAuthenticated()" class="col-sm-6">
           <h2>Upload Your Images</h2>
             <input type="filepicker-dragdrop" data-fp-apikey="AeQyhdf3yRBOLOL8U1cutz" data-fp-mimetypes="image/*" data-fp-container="modal" data-fp-multiple="true" data-fp-store-location="s3" data-fp-services="CLOUDDRIVE,COMPUTER,DROPBOX,FACEBOOK,GOOGLE_DRIVE,URL,PICASA"
@@ -13,15 +12,14 @@
 	{out+=event.fpfiles[i].url;out+=' '};
 	alert(out)" />
         </div>
-        
-        <div class="col-sm-6">
+        <!--<div class="col-sm-6">
           <h2>Heading</h2>
           <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus,
             tellus ac cursus commodo, tortor mauris condimentum nibh, ut
             fermentum massa justo sit amet risus. Etiam porta sem malesuada
             magna mollis euismod. Donec sed odio dui.</p>
           <p><a class="btn btn-primary" href="#">View details »</a></p>
-        </div>
+        </div>-->
       </div>
     </div>
   </div>
