@@ -6,7 +6,9 @@ logs
 target
 .idea
 .iml
-.node_modules
+*.node_modules
+node_modules
+server/node/node_modules
 
 # Package Files #
 *.jar
