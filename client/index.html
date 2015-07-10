@@ -171,13 +171,8 @@
                         <li><a href="#gallery">Gallery</a></li>
                         <li><a href="#contact">Contact</a></li>
                         <li ng-if="isAuthenticated()"><a href="/#/profile">Profile</a></li>
-						<ul ng-if="!isAuthenticated()">
-							<li><a data-toggle="modal" href="/#/login">Login</a></li>
-							<li><a  data-toggle="modal" href="/#/signup">Sign up</a></li>
-						</ul>
-						<ul ng-if="isAuthenticated()">
-						<li><a href="/#/logout">Logout</a></li>
-						</ul>
+						<li ng-if="isAuthenticated()"><a href="/#/logout">Logout</a></li>
+
                     </ul>
                 </div>
             </div>
@@ -226,16 +221,16 @@
 
                               <br/>
 
-                              <p class="text-center">
+                              <!--<p class="text-center">
                                   <a href="#">Forgot your password?</a>
                               </p>
 
                               <p class="text-center text-muted">
                                   <small>Don't have an account yet? <a href="/#/signup">Sign up</a></small>
-                              </p>
+                              </p>-->
 
                               <div class="signup-or-separator">
-                                  <h6 class="text">or</h6>
+                                  <h6 class="text center">or</h6>
                                   <hr>
                               </div>
                           </form>
@@ -327,57 +322,57 @@
           
           <!-- REGISTRATION FORM -->
           <div class="modal-body noopacity nodisplay" id="register">
-              <form class="form-horizontal" role="form" autocomplete="off" data-toggle="validator">
+              <!--<form class="form-horizontal" role="form" autocomplete="off" data-toggle="validator">
                   <div class="form-group">
                     
-                      <!-- E-MAIL INPUT -->
+                      &lt;!&ndash; E-MAIL INPUT &ndash;&gt;
                       <div class="input-group col-xs-12">
                         
-                         <!-- ICON -->
+                         &lt;!&ndash; ICON &ndash;&gt;
                          <div class="input-group-addon"><span class="elegant icon_mail_alt"></span></div>
                          
-                         <!-- INPUT -->
+                         &lt;!&ndash; INPUT &ndash;&gt;
                          <input type="email" class="form-control" id="register-email" placeholder="e-mail adress" autocomplete="off" required>
                           
                       </div>
                       
-                      <!-- ERROR MESSAGE BOX -->
+                      &lt;!&ndash; ERROR MESSAGE BOX &ndash;&gt;
                       <div class="help-block with-errors"></div>
                       
                   </div>
                   
                   <div class="form-group">
                     
-                      <!-- PASSWORD INPUT -->
+                      &lt;!&ndash; PASSWORD INPUT &ndash;&gt;
                       <div class="input-group col-xs-12">
                         
-                         <!-- ICON -->
+                         &lt;!&ndash; ICON &ndash;&gt;
                          <div class="input-group-addon"><span class="icon-password">*</span></div>
                          
-                         <!-- INPUT -->
+                         &lt;!&ndash; INPUT &ndash;&gt;
                          <input type="password" class="form-control" id="register-password" placeholder="password" autocomplete="off" data-minlength="5" required>
                           
                       </div>
                       
-                      <!-- ERROR MESSAGE BOX -->
+                      &lt;!&ndash; ERROR MESSAGE BOX &ndash;&gt;
                       <div class="help-block with-errors"></div>
                       
                   </div>
                   
                   <div class="form-group">
                       
-                      <!-- PASSWORD REPEAT INPUT -->
+                      &lt;!&ndash; PASSWORD REPEAT INPUT &ndash;&gt;
                       <div class="input-group col-xs-12">
                          
-                         <!-- ICON -->
+                         &lt;!&ndash; ICON &ndash;&gt;
                          <div class="input-group-addon"><span class="icon-repeat">**</span></div>
                          
-                         <!-- INPUT -->
+                         &lt;!&ndash; INPUT &ndash;&gt;
                          <input type="password" class="form-control" id="register-repeat" placeholder="repeat password" autocomplete="off" data-match="#register-password" required>
                           
                       </div>
                       
-                      <!-- ERROR MESSAGE BOX -->
+                      &lt;!&ndash; ERROR MESSAGE BOX &ndash;&gt;
                       <div class="help-block with-errors"></div>
                       
                   </div>
@@ -385,13 +380,13 @@
                   <div class="form-group">
                       <div class="input-group col-xs-12">
                           
-                          <!-- SUBMIT BUTTON -->
+                          &lt;!&ndash; SUBMIT BUTTON &ndash;&gt;
                           <button type="submit" class="btn btn-success col-xs-12" href="#/signup">
                             
-                            <!-- ICON -->
+                            &lt;!&ndash; ICON &ndash;&gt;
                             <span class="icon_profile"></span>
                             
-                            <!--BUTTON TEXT-->
+                            &lt;!&ndash;BUTTON TEXT&ndash;&gt;
                             Create Account
                           
                           </button>
@@ -399,7 +394,60 @@
                       </div>
                   </div>
                   
-              </form>
+              </form>-->
+
+
+                  <div class="row" ng-controller="SignupCtrl">
+                      <div class="center-form panel">
+                          <div class="panel-body">
+                              <h2 class="text-center">Sign up</h2>
+                              <form method="post" ng-submit="signup()" name="signupForm">
+                                  <div class="form-group has-feedback" ng-class="{ 'has-error' : signupForm.displayName.$invalid && signupForm.displayName.$dirty }">
+                                      <input class="form-control input-lg" type="text" name="displayName" ng-model="displayName" placeholder="Name" required autofocus>
+                                      <span class="ion-person form-control-feedback"></span>
+                                      <div class="help-block text-danger" ng-if="signupForm.displayName.$dirty" ng-messages="signupForm.displayName.$error">
+                                          <div ng-message="required">You must enter your name.</div>
+                                      </div>
+                                  </div>
+
+                                  <div class="form-group has-feedback" ng-class="{ 'has-error' : signupForm.email.$invalid && signupForm.email.$dirty }">
+                                      <input class="form-control input-lg" type="email" id="email" name="email" ng-model="email" placeholder="Email" required
+                                             ng-pattern="/^[A-z]+[a-z0-9._]+@[a-z]+\.[a-z.]{2,5}$/">
+                                      <span class="ion-at form-control-feedback"></span>
+                                      <div class="help-block text-danger" ng-if="signupForm.email.$dirty" ng-messages="signupForm.email.$error">
+                                          <div ng-message="required">Your email address is required.</div>
+                                          <div ng-message="pattern">Your email address is invalid.</div>
+                                      </div>
+                                  </div>
+
+                                  <div class="form-group has-feedback" ng-class="{ 'has-error' : signupForm.password.$invalid && signupForm.password.$dirty }">
+                                      <input password-strength class="form-control input-lg" type="password" name="password" ng-model="password" placeholder="Password" required>
+                                      <span class="ion-key form-control-feedback"></span>
+                                      <div class="help-block text-danger" ng-if="signupForm.password.$dirty" ng-messages="signupForm.password.$error">
+                                          <div ng-message="required">Password is required.</div>
+                                      </div>
+                                  </div>
+
+                                  <div class="form-group has-feedback" ng-class="{ 'has-error' : signupForm.confirmPassword.$invalid && signupForm.confirmPassword.$dirty }">
+                                      <input password-match="password" class="form-control input-lg" type="password" name="confirmPassword" ng-model="confirmPassword" placeholder="Confirm Password">
+                                      <span class="ion-key form-control-feedback"></span>
+                                      <div class="help-block text-danger" ng-if="signupForm.confirmPassword.$dirty" ng-messages="signupForm.confirmPassword.$error">
+                                          <div ng-message="compareTo">Password must match.</div>
+                                      </div>
+                                  </div>
+
+                                  <p class="text-center text-muted"><small>By clicking on Sign up, you agree to <a href="#">terms & conditions</a> and <a href="#">privacy policy</a></small></p>
+
+                                  <button type="submit" ng-disabled="signupForm.$invalid" class="btn btn-lg btn-block btn-primary">Sign up</button>
+                                  <br/>
+
+                                  <!--<p class="text-center text-muted">Already have an account? <a href="/#/login">Log in now</a></p>-->
+                              </form>
+                          </div>
+                      </div>
+                  </div>
+
+
           </div>
           
           <!-- PASSWORD REMINDER FORM -->
